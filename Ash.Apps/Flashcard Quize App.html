@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitHub Style Flashcards</title>
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #c9d1d9;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #58a6ff;
+    }
+
+    .flashcard {
+      background: #161b22;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 10px 20px rgba(90, 90, 90, 0.3);
+      margin-bottom: 20px;
+      transform: perspective(800px) rotateX(0deg);
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .flashcard:hover {
+      transform: perspective(800px) rotateX(4deg);
+    }
+
+    .question {
+      font-size: 1.3rem;
+    }
+
+    .answer {
+      margin-top: 10px;
+      font-style: italic;
+      color: #8b949e;
+      display: none;
+    }
+
+    .buttons, .editor {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 8px 14px;
+      background-color: #238636;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    button:hover {
+      background-color: #2ea043;
+      transform: translateY(-2px);
+    }
+
+    input, textarea {
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+      width: 100%;
+      background-color: #21262d;
+      color: #c9d1d9;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    .card-index {
+      margin-top: 5px;
+      color: #8b949e;
+      font-size: 0.9rem;
+    }
+
+    .editor {
+      flex-direction: column;
+      margin-top: 30px;
+      background: #161b22;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 10px 20px rgba(90, 90, 90, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📚 GitHub Style Flashcard Quiz</h1>
+
+    <div class="flashcard" id="flashcard">
+      <div class="question" id="question">Loading question...</div>
+      <div class="answer" id="answer">Answer will appear here.</div>
+    </div>
+
+    <div class="buttons">
+      <button onclick="prevCard()">⬅ Previous</button>
+      <button onclick="showAnswer()">👀 Show Answer</button>
+      <button onclick="nextCard()">➡ Next</button>
+      <button onclick="editCard()">✏️ Edit</button>
+      <button onclick="deleteCard()">🗑 Delete</button>
+    </div>
+
+    <div class="card-index" id="cardIndex">Card 1 of 1</div>
+
+    <div class="editor">
+      <h3>Add / Edit Flashcard</h3>
+      <input type="text" id="newQuestion" placeholder="Enter question" />
+      <textarea id="newAnswer" rows="3" placeholder="Enter answer"></textarea>
+      <div class="buttons">
+        <button onclick="addCard()">➕ Add New</button>
+        <button onclick="saveEdit()">💾 Save Edit</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let flashcards = [
+      { question: "What is the capital of France?", answer: "Paris" },
+      { question: "What does HTML stand for?", answer: "HyperText Markup Language" },
+      { question: "What is the value of PI (approx)?", answer: "3.14159" },
+      { question: "Who wrote 'Romeo and Juliet'?", answer: "William Shakespeare" },
+      { question: "What is the boiling point of water?", answer: "100°C or 212°F" },
+      { question: "What is the largest planet in our solar system?", answer: "Jupiter" },
+      { question: "Who is the CEO of Tesla?", answer: "Elon Musk" },
+      { question: "What language is primarily used for Android app development?", answer: "Java / Kotlin" },
+      { question: "What is the result of 7 + 8 * 2?", answer: "23" },
+      { question: "What does CSS stand for?", answer: "Cascading Style Sheets" }
+    ];
+
+    let currentIndex = 0;
+    let editingIndex = null;
+
+    function displayCard() {
+      const card = flashcards[currentIndex];
+      document.getElementById('question').textContent = card.question;
+      document.getElementById('answer').style.display = 'none';
+      document.getElementById('answer').textContent = card.answer;
+      document.getElementById('cardIndex').textContent = `Card ${currentIndex + 1} of ${flashcards.length}`;
+    }
+
+    function showAnswer() {
+      document.getElementById('answer').style.display = 'block';
+    }
+
+    function nextCard() {
+      if (currentIndex < flashcards.length - 1) {
+        currentIndex++;
+      } else {
+        currentIndex = 0;
+      }
+      displayCard();
+    }
+
+    function prevCard() {
+      if (currentIndex > 0) {
+        currentIndex--;
+      } else {
+        currentIndex = flashcards.length - 1;
+      }
+      displayCard();
+    }
+
+    function addCard() {
+      const question = document.getElementById('newQuestion').value.trim();
+      const answer = document.getElementById('newAnswer').value.trim();
+      if (question && answer) {
+        flashcards.push({ question, answer });
+        document.getElementById('newQuestion').value = '';
+        document.getElementById('newAnswer').value = '';
+        currentIndex = flashcards.length - 1;
+        displayCard();
+      } else {
+        alert("Please enter both question and answer.");
+      }
+    }
+
+    function editCard() {
+      editingIndex = currentIndex;
+      const card = flashcards[editingIndex];
+      document.getElementById('newQuestion').value = card.question;
+      document.getElementById('newAnswer').value = card.answer;
+    }
+
+    function saveEdit() {
+      if (editingIndex !== null) {
+        const question = document.getElementById('newQuestion').value.trim();
+        const answer = document.getElementById('newAnswer').value.trim();
+        if (question && answer) {
+          flashcards[editingIndex] = { question, answer };
+          editingIndex = null;
+          document.getElementById('newQuestion').value = '';
+          document.getElementById('newAnswer').value = '';
+          displayCard();
+        } else {
+          alert("Please enter both question and answer.");
+        }
+      }
+    }
+
+    function deleteCard() {
+      if (flashcards.length === 1) {
+        alert("At least one flashcard must remain.");
+        return;
+      }
+      flashcards.splice(currentIndex, 1);
+      currentIndex = Math.max(0, currentIndex - 1);
+      displayCard();
+    }
+
+    // Initialize app
+    displayCard();
+  </script>
+</body>
+</html>
